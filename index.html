@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NightSide RP DevTools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Fondo animado GPU-accelerado -->
+    <div id="bg-orb-1"></div>
+    <div id="bg-orb-2"></div>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay">
+        <div id="login-card">
+            <div id="login-logo">
+                <svg width="48" height="48" viewBox="0 0 127.14 96.36" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                </svg>
+            </div>
+
+            <h2 id="login-title">Acceso Restringido</h2>
+            <p id="login-subtitle">Inicia sesión con tu cuenta de <strong>Discord</strong> para verificar tu identidad y acceder a NightSide RP DevTools</p>
+
+            <!-- Estado: cargando (verificando token) -->
+            <div id="login-loading" style="display:none;">
+                <div class="login-spinner"></div>
+                <p style="margin-top:1rem; color:rgba(255,255,255,0.5); font-size:0.9rem;">Verificando tu cuenta...</p>
+            </div>
+
+            <!-- Estado: error -->
+            <p id="login-error"></p>
+
+            <!-- Estado: botón principal -->
+            <button id="login-btn">
+                <svg width="20" height="20" viewBox="0 0 127.14 96.36" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                </svg>
+                Iniciar sesión con Discord
+            </button>
+
+            <p id="login-footer">Made for NightSide RP | Programers &nbsp;·&nbsp; By <span>Edyhinz</span></p>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <div class="header-top" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 1rem;">
+                <div class="logo-area">
+                    <div class="logo-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <h1>DevTools</h1>
+                </div>
+                <div class="creator-badge">
+                    <span class="badge-title">Made for NightSide RP | Programers</span>
+                    <span class="badge-author">By <span class="glow">Edyhinz</span></span>
+                </div>
+            </div>
+            <p>Un conjunto de herramientas para optimizar tu flujo de trabajo</p>
+            <div class="tabs">
+                <button class="tab-btn active" data-target="svgTool">Generador SVG para MTA</button>
+                <button class="tab-btn" data-target="commentTool">Eliminador de Comentarios</button>
+                <button class="tab-btn" data-target="debugTool">Limpiador de Debug</button>
+                <button class="tab-btn" data-target="formatTool">Formateador de Código</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- SVG Generator Tool -->
+            <div id="svgTool" class="tab-content active">
+                <div class="tool-grid">
+                    <div class="left-panel">
+                <section class="card glass">
+                    <h2>Resolución de Figma</h2>
+                    <p class="subtitle">El tamaño de pantalla base que usaste en tu diseño de Figma.</p>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="baseWidth">Ancho Base</label>
+                            <div class="custom-number-wrapper">
+                                <input type="number" id="baseWidth" value="1920" placeholder="ej. 1920">
+                                <div class="spin-buttons">
+                                    <button class="spin-btn spin-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+                                    <button class="spin-btn spin-down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="baseHeight">Alto Base</label>
+                            <div class="custom-number-wrapper">
+                                <input type="number" id="baseHeight" value="1080" placeholder="ej. 1080">
+                                <div class="spin-buttons">
+                                    <button class="spin-btn spin-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+                                    <button class="spin-btn spin-down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="svgContainer"></div>
+
+                <button id="addSvgBtn" class="btn-primary">
+                    <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span> Añadir Otro SVG
+                </button>
+            </div>
+
+            <div class="right-panel">
+                <section class="card glass sticky-card">
+                    <div class="card-header">
+                        <h2>client.lua Generado</h2>
+                        <button id="copyBtn" class="btn-secondary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copiar Código
+                        </button>
+                    </div>
+                    <div class="code-container">
+                        <pre><code id="luaCode">-- Añade tus SVGs para ver el código generado</code></pre>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Remover Tool -->
+            <div id="commentTool" class="tab-content">
+                <div class="tool-grid">
+                    <div class="left-panel">
+                        <section class="card glass">
+                            <h2>Código de Entrada</h2>
+                            <p class="subtitle">Pega tu código (Lua, JS, C++, HTML, CSS, etc.) para eliminar todos los comentarios.</p>
+                            <textarea id="rawCodeInput" placeholder="Pega tu código con comentarios aquí..." style="height: 400px; width: 100%;"></textarea>
+                            <button id="removeCommentsBtn" class="btn-primary" style="margin-top: 1rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg> Eliminar Comentarios
+                            </button>
+                        </section>
+                    </div>
+                    <div class="right-panel">
+                        <section class="card glass sticky-card">
+                            <div class="card-header">
+                                <h2>Código Limpio</h2>
+                                <button id="copyCleanCodeBtn" class="btn-secondary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copiar Código
+                                </button>
+                            </div>
+                            <div class="code-container">
+                                <pre><code id="cleanCodeOutput">-- Tu código limpio aparecerá aquí</code></pre>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debug Remover Tool -->
+            <div id="debugTool" class="tab-content">
+                <div class="tool-grid">
+                    <div class="left-panel">
+                        <section class="card glass">
+                            <h2>Código de Entrada</h2>
+                            <p class="subtitle">Pega tu código Lua de MTA para eliminar outputChatBox y outputDebugString.</p>
+                            <textarea id="rawDebugCodeInput" placeholder="Pega tu código Lua aquí..." style="height: 400px; width: 100%;"></textarea>
+                            <button id="removeDebugBtn" class="btn-primary" style="margin-top: 1rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg> Eliminar Mensajes Debug
+                            </button>
+                        </section>
+                    </div>
+                    <div class="right-panel">
+                        <section class="card glass sticky-card">
+                            <div class="card-header">
+                                <h2>Código Limpio</h2>
+                                <button id="copyCleanDebugBtn" class="btn-secondary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copiar Código
+                                </button>
+                            </div>
+                            <div class="code-container">
+                                <pre><code id="cleanDebugOutput">-- El código sin prints de debug aparecerá aquí</code></pre>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formatter Tool -->
+            <div id="formatTool" class="tab-content">
+                <div class="tool-grid">
+                    <div class="left-panel">
+                        <section class="card glass">
+                            <h2>Código de Entrada</h2>
+                            <p class="subtitle">Pega tu código Lua desordenado aquí para organizarlo y darle sangría automáticamente.</p>
+                            <textarea id="rawFormatInput" placeholder="Pega tu código Lua sin formato aquí..." style="height: 400px; width: 100%;"></textarea>
+                            <button id="formatBtn" class="btn-primary" style="margin-top: 1rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg> Formatear Código
+                            </button>
+                        </section>
+                    </div>
+                    <div class="right-panel">
+                        <section class="card glass sticky-card">
+                            <div class="card-header">
+                                <h2>Código Organizado</h2>
+                                <button id="copyFormatBtn" class="btn-secondary">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copiar Código
+                                </button>
+                            </div>
+                            <div class="code-container">
+                                <pre><code id="formatOutput">-- El código formateado aparecerá aquí</code></pre>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
