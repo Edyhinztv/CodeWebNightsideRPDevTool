@@ -11,12 +11,13 @@
     // ════════════════════════════════════════════════
     //  ► CONFIGURACIÓN — edita solo estas 3 líneas ◄
     // ════════════════════════════════════════════════
-    const CLIENT_ID   = 'TU_CLIENT_ID_AQUI';           // Tu Client ID del portal de Discord
-    const REDIRECT_URI = 'http://127.0.0.1:5500';      // La URL donde está tu web (sin / al final)
+    const CLIENT_ID   = '1507541241141788692';           // Tu Client ID del portal de Discord
+    const REDIRECT_URI = 'https://nightsidedevtools.netlify.app';      // La URL donde está tu web (sin / al final)
 
     // IDs de Discord que tienen acceso (el ID real que Discord devuelve)
     const ALLOWED_IDS = [
-        '123456789012345678',   // ← reemplaza con los IDs reales
+        '1357141184631279656',   // ← reemplaza con los IDs reales
+        '1043389295211335680',   // ← reemplaza con los IDs reales
     ];
     // ════════════════════════════════════════════════
 
