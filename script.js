@@ -289,6 +289,72 @@ document.addEventListener('DOMContentLoaded', () => {
                   .replace(/'/g, '&#039;');
     }
 
+    function extractTextElements(svgString) {
+        const texts = [];
+        try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgString, "image/svg+xml");
+            doc.querySelectorAll('text').forEach(el => {
+                texts.push({
+                    x: parseFloat(el.getAttribute('x')) || 0,
+                    y: parseFloat(el.getAttribute('y')) || 0,
+                    fontSize: parseFloat(el.getAttribute('font-size')) || 14,
+                    fill: el.getAttribute('fill') || '#ffffff',
+                    fontFamily: el.getAttribute('font-family') || 'default',
+                    textAnchor: el.getAttribute('text-anchor') || 'start',
+                    fontWeight: el.getAttribute('font-weight') || 'normal',
+                    content: el.textContent || ''
+                });
+            });
+        } catch(e) {
+            console.error("Failed to parse SVG texts", e);
+        }
+        return texts;
+    }
+
+    function removeTextElementsFromSvg(svgString) {
+        return svgString.replace(/<text[^>]*>[\s\S]*?<\/text>/gi, '');
+    }
+
+    function parseColor(colorStr) {
+        if (!colorStr || colorStr === 'none') return { r: 255, g: 255, b: 255, a: 255 };
+        if (colorStr.startsWith('#')) {
+            let hex = colorStr.substring(1);
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            return {
+                r: parseInt(hex.substring(0, 2), 16) || 255,
+                g: parseInt(hex.substring(2, 4), 16) || 255,
+                b: parseInt(hex.substring(4, 6), 16) || 255,
+                a: 255
+            };
+        }
+        const named = {
+            white: { r: 255, g: 255, b: 255 }, black: { r: 0, g: 0, b: 0 },
+            red: { r: 255, g: 0, b: 0 }, green: { r: 0, g: 255, b: 0 },
+            blue: { r: 0, g: 0, b: 255 }, yellow: { r: 255, g: 255, b: 0 },
+            cyan: { r: 0, g: 255, b: 255 }, magenta: { r: 255, g: 0, b: 255 },
+            gray: { r: 128, g: 128, b: 128 }, grey: { r: 128, g: 128, b: 128 }
+        };
+        if (named[colorStr.toLowerCase()]) return { ...named[colorStr.toLowerCase()], a: 255 };
+        const rgb = colorStr.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+        if (rgb) return { r: +rgb[1], g: +rgb[2], b: +rgb[3], a: 255 };
+        return { r: 255, g: 255, b: 255, a: 255 };
+    }
+
+    function textAnchorToAlign(anchor) {
+        if (anchor === 'middle') return 'center';
+        if (anchor === 'end') return 'right';
+        return 'left';
+    }
+
+    function svgFontToMta(fontFamily, fontWeight) {
+        const isBold = fontWeight === 'bold' || parseInt(fontWeight) >= 700;
+        const lower = (fontFamily || 'default').toLowerCase();
+        if (isBold) return 'default-bold';
+        if (lower.includes('mono')) return 'default';
+        return 'default';
+    }
+
     function generateCode() {
         const baseW = baseWidthInput.value || 1920;
         const baseH = baseHeightInput.value || 1080;
@@ -307,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         code += `<span class="comment">-- Tabla para almacenar texturas SVG</span>\n`;
         code += `<span class="keyword">local</span> svgs = {}\n\n`;
 
-        // SVG creation
+        // SVG creation (text elements stripped from texture)
         code += `<span class="function">addEventHandler</span>(<span class="string">"onClientResourceStart"</span>, resourceRoot,\n`;
         code += `    <span class="keyword">function</span>()\n`;
 
@@ -315,8 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let name = item.querySelector('.svg-name').value.replace(/[^a-zA-Z0-9_]/g, '_') || 'unnamed';
             const rawSvg = item.querySelector('.svg-code').value.trim() || '<svg></svg>';
             const dim = extractDimensions(rawSvg);
-            
-            const cleanSvg = escapeLuaString(rawSvg);
+
+            const svgNoText = removeTextElementsFromSvg(rawSvg);
+            const cleanSvg = escapeLuaString(svgNoText);
 
             code += `        <span class="comment">-- Crear ${name}</span>\n`;
             code += `        <span class="keyword">local</span> raw_${name} = <span class="string">[[</span>\n${htmlEscape(cleanSvg)}\n<span class="string">]]</span>\n`;
@@ -328,16 +395,32 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render loop
         code += `<span class="function">addEventHandler</span>(<span class="string">"onClientRender"</span>, root,\n`;
         code += `    <span class="keyword">function</span>()\n`;
-        
+
         items.forEach(item => {
             let name = item.querySelector('.svg-name').value.replace(/[^a-zA-Z0-9_]/g, '_') || 'unnamed';
             const rawSvg = item.querySelector('.svg-code').value.trim() || '<svg></svg>';
             const dim = extractDimensions(rawSvg);
             const posX = parseFloat(item.querySelector('.svg-pos-x').value) || 0;
             const posY = parseFloat(item.querySelector('.svg-pos-y').value) || 0;
+            const textElements = extractTextElements(rawSvg);
 
             code += `        <span class="keyword">if</span> svgs.${name} <span class="keyword">then</span>\n`;
             code += `            <span class="function">dxDrawImage</span>(${posX} * resW, ${posY} * resH, ${dim.w} * resW, ${dim.h} * resH, svgs.${name}, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="function">tocolor</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>), <span class="keyword">false</span>)\n`;
+
+            textElements.forEach(text => {
+                const color = parseColor(text.fill);
+                const mtaFont = svgFontToMta(text.fontFamily, text.fontWeight);
+                const align = textAnchorToAlign(text.textAnchor);
+                const scale = (text.fontSize / 12).toFixed(2);
+                const txt = htmlEscape(escapeLuaString(text.content));
+                const l = (posX + text.x).toFixed(1);
+                const t = (posY + text.y - text.fontSize).toFixed(1);
+                const r = (posX + text.x + text.content.length * text.fontSize * 0.6).toFixed(1);
+                const b = (posY + text.y).toFixed(1);
+
+                code += `            <span class="function">dxDrawText</span>(<span class="string">[[${txt}]]</span>, <span class="number">${l}</span> * resW, <span class="number">${t}</span> * resH, <span class="number">${r}</span> * resW, <span class="number">${b}</span> * resH, <span class="function">tocolor</span>(${color.r}, ${color.g}, ${color.b}, ${color.a}), <span class="number">${scale}</span> * resH, <span class="string">"${mtaFont}"</span>, <span class="string">"${align}"</span>, <span class="string">"top"</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>)\n`;
+            });
+
             code += `        <span class="keyword">end</span>\n`;
         });
 
