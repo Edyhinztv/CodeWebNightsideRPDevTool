@@ -16,7 +16,7 @@
 
     // IDs de Discord que tienen acceso (el ID real que Discord devuelve)
     const ALLOWED_IDS = [
-        '1357141184631279656',   // ← reemplaza con los IDs reales
+        '1357141184631279656',
     ];
     // ════════════════════════════════════════════════
 
