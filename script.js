@@ -16,7 +16,7 @@
 
     // IDs de Discord que tienen acceso (el ID real que Discord devuelve)
     const ALLOWED_IDS = [
-        '1357141184631279656',   // ← reemplaza con los IDs reales
+        '123456789012345678',   // ← reemplaza con los IDs reales
     ];
     // ════════════════════════════════════════════════
 
@@ -212,11 +212,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label>Nombre (Variable)</label>
                 <input type="text" class="svg-name" placeholder="ej. logo, fondo" value="svg_${id}">
             </div>
+            <div class="input-row" style="margin-bottom: 0.5rem;">
+                <div class="input-group">
+                    <label>Posición X</label>
+                    <input type="number" class="svg-pos-x" value="0" placeholder="ej. 100">
+                </div>
+                <div class="input-group">
+                    <label>Posición Y</label>
+                    <input type="number" class="svg-pos-y" value="0" placeholder="ej. 200">
+                </div>
+            </div>
             <div class="input-group" style="margin-bottom: 0.5rem;">
                 <label>Código SVG</label>
                 <textarea class="svg-code" placeholder="Pega tu código <svg>...</svg> aquí..."></textarea>
             </div>
-            <p class="subtitle" style="margin-bottom: 0;">El tamaño y posición se extraen automáticamente de tu código SVG.</p>
+            <p class="subtitle" style="margin-bottom: 0;">El tamaño se extrae automáticamente. Ingresa la posición X/Y desde Figma.</p>
         `;
 
         // Event listeners for this card
@@ -323,9 +333,11 @@ document.addEventListener('DOMContentLoaded', () => {
             let name = item.querySelector('.svg-name').value.replace(/[^a-zA-Z0-9_]/g, '_') || 'unnamed';
             const rawSvg = item.querySelector('.svg-code').value.trim() || '<svg></svg>';
             const dim = extractDimensions(rawSvg);
+            const posX = parseFloat(item.querySelector('.svg-pos-x').value) || 0;
+            const posY = parseFloat(item.querySelector('.svg-pos-y').value) || 0;
 
             code += `        <span class="keyword">if</span> svgs.${name} <span class="keyword">then</span>\n`;
-            code += `            <span class="function">dxDrawImage</span>(${dim.x} * resW, ${dim.y} * resH, ${dim.w} * resW, ${dim.h} * resH, svgs.${name}, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="function">tocolor</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>), <span class="keyword">false</span>)\n`;
+            code += `            <span class="function">dxDrawImage</span>(${posX} * resW, ${posY} * resH, ${dim.w} * resW, ${dim.h} * resH, svgs.${name}, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="function">tocolor</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>), <span class="keyword">false</span>)\n`;
             code += `        <span class="keyword">end</span>\n`;
         });
 
