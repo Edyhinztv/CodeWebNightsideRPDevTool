@@ -261,32 +261,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function addTextEntry(container, values) {
         const entry = document.createElement('div');
         entry.className = 'text-entry';
-        entry.innerHTML = \`
-            <div class="input-row" style="margin-bottom:0.25rem;">
-                <div class="input-group" style="flex:0.5; min-width:44px;">
-                    <label style="font-size:0.7rem;">X</label>
-                    <input type="number" class="text-x" value="\${values?.x || 0}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
-                </div>
-                <div class="input-group" style="flex:0.5; min-width:44px;">
-                    <label style="font-size:0.7rem;">Y</label>
-                    <input type="number" class="text-y" value="\${values?.y || 0}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
-                </div>
-                <div class="input-group" style="flex:0.7; min-width:55px;">
-                    <label style="font-size:0.7rem;">Tamaño</label>
-                    <input type="number" class="text-size" value="\${values?.size || 24}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
-                </div>
-                <div class="input-group" style="flex:0.7; min-width:65px;">
-                    <label style="font-size:0.7rem;">Color</label>
-                    <input type="text" class="text-color" value="\${values?.color || '#ffffff'}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
-                </div>
-                <div style="align-self:flex-end;">
-                    <button class="btn-remove-text" type="button" style="background:transparent; border:1px solid rgba(239,68,68,0.3); color:var(--danger); border-radius:6px; padding:0.4rem 0.5rem; font-size:0.9rem; cursor:pointer; line-height:1;">✕</button>
-                </div>
-            </div>
-            <div class="input-group" style="margin-bottom:0.35rem;">
-                <input type="text" class="text-content" placeholder="Texto a mostrar" value="\${values?.content || ''}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
-            </div>
-        \`;
+        entry.innerHTML = ' \
+            <div class="input-row" style="margin-bottom:0.25rem;"> \
+                <div class="input-group" style="flex:0.5; min-width:44px;"> \
+                    <label style="font-size:0.7rem;">X</label> \
+                    <input type="number" class="text-x" value="' + (values?.x || 0) + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
+                </div> \
+                <div class="input-group" style="flex:0.5; min-width:44px;"> \
+                    <label style="font-size:0.7rem;">Y</label> \
+                    <input type="number" class="text-y" value="' + (values?.y || 0) + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
+                </div> \
+                <div class="input-group" style="flex:0.7; min-width:55px;"> \
+                    <label style="font-size:0.7rem;">Tama\u00f1o</label> \
+                    <input type="number" class="text-size" value="' + (values?.size || 24) + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
+                </div> \
+                <div class="input-group" style="flex:0.7; min-width:65px;"> \
+                    <label style="font-size:0.7rem;">Color</label> \
+                    <input type="text" class="text-color" value="' + (values?.color || '#ffffff') + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
+                </div> \
+                <div style="align-self:flex-end;"> \
+                    <button class="btn-remove-text" type="button" style="background:transparent; border:1px solid rgba(239,68,68,0.3); color:var(--danger); border-radius:6px; padding:0.4rem 0.5rem; font-size:0.9rem; cursor:pointer; line-height:1;">\u2715</button> \
+                </div> \
+            </div> \
+            <div class="input-group" style="margin-bottom:0.35rem;"> \
+                <input type="text" class="text-content" placeholder="Texto a mostrar" value="' + (values?.content || '') + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
+            </div> \
+        ';
 
         entry.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', generateCode);
