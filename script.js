@@ -271,7 +271,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     <label style="font-size:0.7rem;">Y</label> \
                     <input type="number" class="text-y" value="' + (values?.y || 0) + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
                 </div> \
-                <div class="input-group" style="flex:0.7; min-width:55px;"> \
+                <div class="input-group" style="flex:0.6; min-width:44px;"> \
+                    <label style="font-size:0.7rem;">Ancho</label> \
+                    <input type="number" class="text-w" value="' + (values?.w || 0) + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
+                </div> \
+                <div class="input-group" style="flex:0.6; min-width:44px;"> \
+                    <label style="font-size:0.7rem;">Alto</label> \
+                    <input type="number" class="text-h" value="' + (values?.h || 0) + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
+                </div> \
+                <div style="align-self:flex-end;"> \
+                    <button class="btn-remove-text" type="button" style="background:transparent; border:1px solid rgba(239,68,68,0.3); color:var(--danger); border-radius:6px; padding:0.4rem 0.5rem; font-size:0.9rem; cursor:pointer; line-height:1;">\u2715</button> \
+                </div> \
+            </div> \
+            <div class="input-row" style="margin-bottom:0.25rem;"> \
+                <div class="input-group" style="flex:0.5; min-width:44px;"> \
                     <label style="font-size:0.7rem;">Tama\u00f1o</label> \
                     <input type="number" class="text-size" value="' + (values?.size || 24) + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
                 </div> \
@@ -279,9 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <label style="font-size:0.7rem;">Color</label> \
                     <input type="text" class="text-color" value="' + (values?.color || '#ffffff') + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
                 </div> \
-                <div style="align-self:flex-end;"> \
-                    <button class="btn-remove-text" type="button" style="background:transparent; border:1px solid rgba(239,68,68,0.3); color:var(--danger); border-radius:6px; padding:0.4rem 0.5rem; font-size:0.9rem; cursor:pointer; line-height:1;">\u2715</button> \
-                </div> \
+                <div style="flex:1;"></div> \
             </div> \
             <div class="input-group" style="margin-bottom:0.35rem;"> \
                 <input type="text" class="text-content" placeholder="Texto a mostrar" value="' + (values?.content || '') + '" style="padding:0.4rem 0.5rem; font-size:0.8rem;"> \
@@ -482,14 +493,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!content) return;
                 const tx = parseFloat(entry.querySelector('.text-x').value) || 0;
                 const ty = parseFloat(entry.querySelector('.text-y').value) || 0;
+                const tw = parseFloat(entry.querySelector('.text-w').value) || 0;
+                const th = parseFloat(entry.querySelector('.text-h').value) || 0;
                 const fontSize = parseFloat(entry.querySelector('.text-size').value) || 14;
                 const color = parseColor(entry.querySelector('.text-color').value);
                 const scale = (fontSize / 12).toFixed(2);
                 const txt = htmlEscape(escapeLuaString(content));
                 const l = (posX + tx).toFixed(1);
-                const t = (posY + ty - fontSize).toFixed(1);
-                const r = (posX + tx + content.length * fontSize * 0.6).toFixed(1);
-                const b = (posY + ty).toFixed(1);
+                const t = (posY + ty).toFixed(1);
+                const r = tw ? (posX + tx + tw).toFixed(1) : (posX + tx + content.length * fontSize * 0.6).toFixed(1);
+                const b = th ? (posY + ty + th).toFixed(1) : (posY + ty + fontSize).toFixed(1);
 
                 code += `            <span class="function">dxDrawText</span>(<span class="string">[[${txt}]]</span>, <span class="number">${l}</span> * resW, <span class="number">${t}</span> * resH, <span class="number">${r}</span> * resW, <span class="number">${b}</span> * resH, <span class="function">tocolor</span>(${color.r}, ${color.g}, ${color.b}, ${color.a}), <span class="number">${scale}</span> * resH, <span class="string">"default"</span>, <span class="string">"left"</span>, <span class="string">"top"</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>)\n`;
             });
