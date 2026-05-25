@@ -228,12 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="texts-section" style="margin-bottom: 0.5rem;">
                 <div class="texts-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                    <label style="font-size:0.875rem; color:var(--text-secondary); font-weight:500;">Textos (dxDrawText manual)</label>
+                    <label style="font-size:0.875rem; color:var(--text-secondary); font-weight:500;">Textos (dxDrawText manual, coords Figma)</label>
                     <button class="btn-add-text" type="button" style="background:var(--secondary-color); border:1px solid var(--card-border); color:var(--text-primary); border-radius:6px; padding:0.25rem 0.75rem; font-size:0.8rem; cursor:pointer;">+ Añadir</button>
                 </div>
                 <div class="text-entries"></div>
             </div>
-            <p class="subtitle" style="margin-bottom: 0;">Posición X/Y y textos manuales desde Figma.</p>
+            <p class="subtitle" style="margin-bottom: 0;">Usa coordenadas absolutas de Figma para X/Y/W/H.</p>
         `;
 
         const removeBtn = card.querySelector('.remove-btn');
@@ -383,16 +383,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function parseColor(colorStr) {
-        if (!colorStr || colorStr === 'none') return { r: 255, g: 255, b: 255, a: 255 };
-        if (colorStr.startsWith('#')) {
-            let hex = colorStr.substring(1);
-            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-            return {
-                r: parseInt(hex.substring(0, 2), 16) || 255,
-                g: parseInt(hex.substring(2, 4), 16) || 255,
-                b: parseInt(hex.substring(4, 6), 16) || 255,
-                a: 255
-            };
+        if (!colorStr || colorStr === 'none' || colorStr === 'transparent') return { r: 255, g: 255, b: 255, a: 0 };
+        let hex = colorStr.startsWith('#') ? colorStr.substring(1) : colorStr;
+        if (/^[0-9a-f]{6}$/i.test(hex)) {
+            return { r: parseInt(hex.substring(0, 2), 16), g: parseInt(hex.substring(2, 4), 16), b: parseInt(hex.substring(4, 6), 16), a: 255 };
+        }
+        if (/^[0-9a-f]{3}$/i.test(hex)) {
+            hex = hex.split('').map(c => c + c).join('');
+            return { r: parseInt(hex.substring(0, 2), 16), g: parseInt(hex.substring(2, 4), 16), b: parseInt(hex.substring(4, 6), 16), a: 255 };
         }
         const named = {
             white: { r: 255, g: 255, b: 255 }, black: { r: 0, g: 0, b: 0 },
@@ -499,10 +497,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const color = parseColor(entry.querySelector('.text-color').value);
                 const scale = (fontSize / 12).toFixed(2);
                 const txt = htmlEscape(escapeLuaString(content));
-                const l = (posX + tx).toFixed(1);
-                const t = (posY + ty).toFixed(1);
-                const r = tw ? (posX + tx + tw).toFixed(1) : (posX + tx + content.length * fontSize * 0.6).toFixed(1);
-                const b = th ? (posY + ty + th).toFixed(1) : (posY + ty + fontSize).toFixed(1);
+                const l = tx.toFixed(1);
+                const t = ty.toFixed(1);
+                const r = tw ? (tx + tw).toFixed(1) : (tx + content.length * fontSize * 0.6).toFixed(1);
+                const b = th ? (ty + th).toFixed(1) : (ty + fontSize).toFixed(1);
 
                 code += `            <span class="function">dxDrawText</span>(<span class="string">[[${txt}]]</span>, <span class="number">${l}</span> * resW, <span class="number">${t}</span> * resH, <span class="number">${r}</span> * resW, <span class="number">${b}</span> * resH, <span class="function">tocolor</span>(${color.r}, ${color.g}, ${color.b}, ${color.a}), <span class="number">${scale}</span> * resH, <span class="string">"default"</span>, <span class="string">"left"</span>, <span class="string">"top"</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>)\n`;
             });
