@@ -226,23 +226,78 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label>Código SVG</label>
                 <textarea class="svg-code" placeholder="Pega tu código <svg>...</svg> aquí..."></textarea>
             </div>
-            <p class="subtitle" style="margin-bottom: 0;">El tamaño se extrae automáticamente. Ingresa la posición X/Y desde Figma.</p>
+            <div class="texts-section" style="margin-bottom: 0.5rem;">
+                <div class="texts-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                    <label style="font-size:0.875rem; color:var(--text-secondary); font-weight:500;">Textos (dxDrawText manual)</label>
+                    <button class="btn-add-text" type="button" style="background:var(--secondary-color); border:1px solid var(--card-border); color:var(--text-primary); border-radius:6px; padding:0.25rem 0.75rem; font-size:0.8rem; cursor:pointer;">+ Añadir</button>
+                </div>
+                <div class="text-entries"></div>
+            </div>
+            <p class="subtitle" style="margin-bottom: 0;">Posición X/Y y textos manuales desde Figma.</p>
         `;
 
-        // Event listeners for this card
         const removeBtn = card.querySelector('.remove-btn');
         removeBtn.addEventListener('click', () => {
             card.remove();
             generateCode();
         });
 
-        const inputs = card.querySelectorAll('input, textarea');
-        inputs.forEach(input => {
+        const staticInputs = card.querySelectorAll('.svg-name, .svg-pos-x, .svg-pos-y, .svg-code');
+        staticInputs.forEach(input => {
             input.addEventListener('input', generateCode);
+        });
+
+        const addTextBtn = card.querySelector('.btn-add-text');
+        const textEntries = card.querySelector('.text-entries');
+        addTextBtn.addEventListener('click', () => {
+            addTextEntry(textEntries);
+            generateCode();
         });
 
         container.appendChild(card);
         generateCode();
+    }
+
+    function addTextEntry(container, values) {
+        const entry = document.createElement('div');
+        entry.className = 'text-entry';
+        entry.innerHTML = \`
+            <div class="input-row" style="margin-bottom:0.25rem;">
+                <div class="input-group" style="flex:0.5; min-width:44px;">
+                    <label style="font-size:0.7rem;">X</label>
+                    <input type="number" class="text-x" value="\${values?.x || 0}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
+                </div>
+                <div class="input-group" style="flex:0.5; min-width:44px;">
+                    <label style="font-size:0.7rem;">Y</label>
+                    <input type="number" class="text-y" value="\${values?.y || 0}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
+                </div>
+                <div class="input-group" style="flex:0.7; min-width:55px;">
+                    <label style="font-size:0.7rem;">Tamaño</label>
+                    <input type="number" class="text-size" value="\${values?.size || 24}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
+                </div>
+                <div class="input-group" style="flex:0.7; min-width:65px;">
+                    <label style="font-size:0.7rem;">Color</label>
+                    <input type="text" class="text-color" value="\${values?.color || '#ffffff'}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
+                </div>
+                <div style="align-self:flex-end;">
+                    <button class="btn-remove-text" type="button" style="background:transparent; border:1px solid rgba(239,68,68,0.3); color:var(--danger); border-radius:6px; padding:0.4rem 0.5rem; font-size:0.9rem; cursor:pointer; line-height:1;">✕</button>
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom:0.35rem;">
+                <input type="text" class="text-content" placeholder="Texto a mostrar" value="\${values?.content || ''}" style="padding:0.4rem 0.5rem; font-size:0.8rem;">
+            </div>
+        \`;
+
+        entry.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', generateCode);
+        });
+
+        entry.querySelector('.btn-remove-text').addEventListener('click', () => {
+            entry.remove();
+            generateCode();
+        });
+
+        container.appendChild(entry);
     }
 
     function extractDimensions(svgString) {
@@ -419,6 +474,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const b = (posY + text.y).toFixed(1);
 
                 code += `            <span class="function">dxDrawText</span>(<span class="string">[[${txt}]]</span>, <span class="number">${l}</span> * resW, <span class="number">${t}</span> * resH, <span class="number">${r}</span> * resW, <span class="number">${b}</span> * resH, <span class="function">tocolor</span>(${color.r}, ${color.g}, ${color.b}, ${color.a}), <span class="number">${scale}</span> * resH, <span class="string">"${mtaFont}"</span>, <span class="string">"${align}"</span>, <span class="string">"top"</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>)\n`;
+            });
+
+            const manualTexts = item.querySelectorAll('.text-entry');
+            manualTexts.forEach(entry => {
+                const content = entry.querySelector('.text-content').value.trim();
+                if (!content) return;
+                const tx = parseFloat(entry.querySelector('.text-x').value) || 0;
+                const ty = parseFloat(entry.querySelector('.text-y').value) || 0;
+                const fontSize = parseFloat(entry.querySelector('.text-size').value) || 14;
+                const color = parseColor(entry.querySelector('.text-color').value);
+                const scale = (fontSize / 12).toFixed(2);
+                const txt = htmlEscape(escapeLuaString(content));
+                const l = (posX + tx).toFixed(1);
+                const t = (posY + ty - fontSize).toFixed(1);
+                const r = (posX + tx + content.length * fontSize * 0.6).toFixed(1);
+                const b = (posY + ty).toFixed(1);
+
+                code += `            <span class="function">dxDrawText</span>(<span class="string">[[${txt}]]</span>, <span class="number">${l}</span> * resW, <span class="number">${t}</span> * resH, <span class="number">${r}</span> * resW, <span class="number">${b}</span> * resH, <span class="function">tocolor</span>(${color.r}, ${color.g}, ${color.b}, ${color.a}), <span class="number">${scale}</span> * resH, <span class="string">"default"</span>, <span class="string">"left"</span>, <span class="string">"top"</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>)\n`;
             });
 
             code += `        <span class="keyword">end</span>\n`;
