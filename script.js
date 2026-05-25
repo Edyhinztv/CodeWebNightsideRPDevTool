@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             btn.classList.add('active');
             document.getElementById(btn.dataset.target).classList.add('active');
+            saveState();
         });
     });
 
@@ -195,8 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const luaCodeOutput = document.getElementById('luaCode');
 
     let svgCounter = 0;
+    const STORAGE_KEY = 'nightside_devtools_state_v1';
+    let isRestoringState = false;
 
-    function createSvgCard() {
+    function createSvgCard(data = null, skipGenerate = false) {
         svgCounter++;
         const id = svgCounter;
         const card = document.createElement('div');
@@ -254,8 +257,19 @@ document.addEventListener('DOMContentLoaded', () => {
             generateCode();
         });
 
+        if (data) {
+            card.querySelector('.svg-name').value = data.name ?? `svg_${id}`;
+            card.querySelector('.svg-pos-x').value = data.posX ?? 0;
+            card.querySelector('.svg-pos-y').value = data.posY ?? 0;
+            card.querySelector('.svg-code').value = data.code ?? '';
+
+            if (Array.isArray(data.texts)) {
+                data.texts.forEach(text => addTextEntry(textEntries, text));
+            }
+        }
+
         container.appendChild(card);
-        generateCode();
+        if (!skipGenerate) generateCode();
     }
 
     function addTextEntry(container, values) {
@@ -513,6 +527,85 @@ document.addEventListener('DOMContentLoaded', () => {
         code += `    <span class="keyword">end</span>\n)\n`;
 
         luaCodeOutput.innerHTML = code;
+        saveState();
+    }
+
+    function collectSvgCardsState() {
+        return Array.from(container.querySelectorAll('.svg-item')).map(card => ({
+            name: card.querySelector('.svg-name').value,
+            posX: card.querySelector('.svg-pos-x').value,
+            posY: card.querySelector('.svg-pos-y').value,
+            code: card.querySelector('.svg-code').value,
+            texts: Array.from(card.querySelectorAll('.text-entry')).map(entry => ({
+                x: entry.querySelector('.text-x').value,
+                y: entry.querySelector('.text-y').value,
+                w: entry.querySelector('.text-w').value,
+                h: entry.querySelector('.text-h').value,
+                size: entry.querySelector('.text-size').value,
+                color: entry.querySelector('.text-color').value,
+                content: entry.querySelector('.text-content').value,
+            })),
+        }));
+    }
+
+    function saveState() {
+        if (isRestoringState) return;
+        try {
+            const state = {
+                activeTab: document.querySelector('.tab-btn.active')?.dataset.target || 'svgTool',
+                baseWidth: baseWidthInput.value,
+                baseHeight: baseHeightInput.value,
+                svgCards: collectSvgCardsState(),
+                rawCodeInput: rawCodeInput?.value || '',
+                rawDebugCodeInput: rawDebugCodeInput?.value || '',
+                rawFormatInput: rawFormatInput?.value || '',
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+            console.warn('Could not save state', e);
+        }
+    }
+
+    function restoreState() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+
+        try {
+            const state = JSON.parse(raw);
+            isRestoringState = true;
+
+            baseWidthInput.value = state.baseWidth || baseWidthInput.value;
+            baseHeightInput.value = state.baseHeight || baseHeightInput.value;
+
+            container.innerHTML = '';
+            svgCounter = 0;
+
+            const cards = Array.isArray(state.svgCards) ? state.svgCards : [];
+            if (cards.length) {
+                cards.forEach(cardData => createSvgCard(cardData, true));
+            } else {
+                createSvgCard(null, true);
+            }
+
+            if (rawCodeInput) rawCodeInput.value = state.rawCodeInput || '';
+            if (rawDebugCodeInput) rawDebugCodeInput.value = state.rawDebugCodeInput || '';
+            if (rawFormatInput) rawFormatInput.value = state.rawFormatInput || '';
+
+            tabBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.target === (state.activeTab || 'svgTool')));
+            tabContents.forEach(content => content.classList.toggle('active', content.id === (state.activeTab || 'svgTool')));
+
+            if (rawCodeInput && cleanCodeOutput) removeComments();
+            if (rawDebugCodeInput && cleanDebugOutput) removeDebugPrints();
+            if (rawFormatInput && formatOutput) formatLuaCode();
+
+            generateCode();
+            return true;
+        } catch (e) {
+            console.error('Failed to restore state', e);
+            return false;
+        } finally {
+            isRestoringState = false;
+        }
     }
 
     addBtn.addEventListener('click', createSvgCard);
@@ -527,9 +620,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { copyBtn.innerText = originalText; }, 2000);
         });
     });
-
-    // Initialize with one card
-    createSvgCard();
 
     // --- Comment Remover Tool ---
     const rawCodeInput = document.getElementById('rawCodeInput');
@@ -558,6 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     removeCommentsBtn.addEventListener('click', removeComments);
+    rawCodeInput.addEventListener('input', saveState);
 
     copyCleanCodeBtn.addEventListener('click', () => {
         const textToCopy = cleanCodeOutput.textContent;
@@ -661,6 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     removeDebugBtn.addEventListener('click', removeDebugPrints);
+    rawDebugCodeInput.addEventListener('input', saveState);
 
     copyCleanDebugBtn.addEventListener('click', () => {
         const textToCopy = cleanDebugOutput.textContent;
@@ -751,6 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     formatBtn.addEventListener('click', formatLuaCode);
+    rawFormatInput.addEventListener('input', saveState);
 
     copyFormatBtn.addEventListener('click', () => {
         const textToCopy = formatOutput.textContent;
@@ -760,6 +853,10 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { copyFormatBtn.innerHTML = originalHTML; }, 2000);
         });
     });
+
+    if (!restoreState()) {
+        createSvgCard();
+    }
 
     // --- Fondo interactivo optimizado (sin lag) ---
     const orb1 = document.getElementById('bg-orb-1');
