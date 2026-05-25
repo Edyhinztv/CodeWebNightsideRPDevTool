@@ -11,13 +11,12 @@
     // ════════════════════════════════════════════════
     //  ► CONFIGURACIÓN — edita solo estas 3 líneas ◄
     // ════════════════════════════════════════════════
-    const CLIENT_ID   = '1507541241141788692';           // Tu Client ID del portal de Discord
-    const REDIRECT_URI = 'https://nightsidedevtools.netlify.app';      // La URL donde está tu web (sin / al final)
+    const CLIENT_ID   = 'TU_CLIENT_ID_AQUI';           // Tu Client ID del portal de Discord
+    const REDIRECT_URI = 'http://127.0.0.1:5500';      // La URL donde está tu web (sin / al final)
 
     // IDs de Discord que tienen acceso (el ID real que Discord devuelve)
     const ALLOWED_IDS = [
-        '1357141184631279656',   // ← reemplaza con los IDs reales
-        '1252136859958640751',   // ← reemplaza con los IDs reales
+        '123456789012345678',   // ← reemplaza con los IDs reales
     ];
     // ════════════════════════════════════════════════
 
@@ -269,9 +268,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function escapeLuaString(str) {
-        // En MTA, para strings multilínea se suele usar [[ ]]. 
-        // Si hay un ]] dentro del SVG, esto rompe el código, lo arreglamos:
         return str.replace(/\]\]/g, ']].."]]"..[[');
+    }
+
+    function htmlEscape(str) {
+        return str.replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#039;');
     }
 
     function generateCode() {
@@ -304,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const cleanSvg = escapeLuaString(rawSvg);
 
             code += `        <span class="comment">-- Crear ${name}</span>\n`;
-            code += `        <span class="keyword">local</span> raw_${name} = <span class="string">[[</span>\n${cleanSvg}\n<span class="string">]]</span>\n`;
+            code += `        <span class="keyword">local</span> raw_${name} = <span class="string">[[</span>\n${htmlEscape(cleanSvg)}\n<span class="string">]]</span>\n`;
             code += `        svgs.${name} = <span class="function">svgCreate</span>(${dim.w} * resW, ${dim.h} * resH, raw_${name})\n\n`;
         });
 
@@ -334,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     baseHeightInput.addEventListener('input', generateCode);
 
     copyBtn.addEventListener('click', () => {
-        const textToCopy = luaCodeOutput.innerText;
+        const textToCopy = luaCodeOutput.textContent;
         navigator.clipboard.writeText(textToCopy).then(() => {
             const originalText = copyBtn.innerText;
             copyBtn.innerText = "¡Copiado!";
