@@ -435,7 +435,9 @@ document.addEventListener('DOMContentLoaded', () => {
         code += `<span class="keyword">local</span> resW, resH = screenW/baseX, screenH/baseY\n\n`;
 
         code += `<span class="comment">-- Tabla para almacenar texturas SVG</span>\n`;
-        code += `<span class="keyword">local</span> svgs = {}\n\n`;
+        code += `<span class="keyword">local</span> svgs = {}\n`;
+        code += `<span class="comment">-- 2 = mejor calidad, 1 = menos memoria</span>\n`;
+        code += `<span class="keyword">local</span> svgQuality = <span class="number">2</span>\n\n`;
 
         // SVG creation (text elements stripped from texture)
         code += `<span class="function">addEventHandler</span>(<span class="string">"onClientResourceStart"</span>, resourceRoot,\n`;
@@ -451,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             code += `        <span class="comment">-- Crear ${name}</span>\n`;
             code += `        <span class="keyword">local</span> raw_${name} = <span class="string">[[</span>\n${htmlEscape(cleanSvg)}\n<span class="string">]]</span>\n`;
-            code += `        svgs.${name} = <span class="function">svgCreate</span>(${dim.w} * resW, ${dim.h} * resH, raw_${name})\n\n`;
+            code += `        svgs.${name} = <span class="function">svgCreate</span>(${dim.w} * resW * svgQuality, ${dim.h} * resH * svgQuality, raw_${name})\n\n`;
         });
 
         code += `    <span class="keyword">end</span>\n)\n\n`;
