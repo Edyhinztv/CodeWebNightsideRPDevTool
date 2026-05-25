@@ -670,6 +670,27 @@ pre {
 .comment { color: #676e95; font-style: italic; }
 .number { color: #f78c6c; }
 
+.text-entry {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--card-border);
+}
+
+.texts-section {
+    border-top: 1px solid var(--card-border);
+    padding-top: 0.75rem;
+}
+
+.btn-add-text:hover {
+    background: var(--secondary-hover) !important;
+}
+
+.btn-remove-text:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+}
+
 @keyframes fadeInDown {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
