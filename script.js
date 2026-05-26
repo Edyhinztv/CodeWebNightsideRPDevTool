@@ -12,7 +12,7 @@
     //  ► CONFIGURACIÓN — edita solo estas 3 líneas ◄
     // ════════════════════════════════════════════════
     const CLIENT_ID   = '1507541241141788692';           // Tu Client ID del portal de Discord
-    const REDIRECT_URI = 'https://nightsidedevtools.netlify.app';      // La URL donde está tu web (sin / al final)
+    const REDIRECT_URI = 'https://nightsiderpdev.vercel.app';      // La URL donde está tu web (sin / al final)
 
     // IDs de Discord que tienen acceso (el ID real que Discord devuelve)
     const ALLOWED_IDS = [
